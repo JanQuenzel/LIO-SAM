@@ -1642,7 +1642,16 @@ public:
         laserOdometryROS.pose.pose.position.z = transformTobeMapped[5];
         laserOdometryROS.pose.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(transformTobeMapped[0], transformTobeMapped[1], transformTobeMapped[2]);
         pubLaserOdometryGlobal.publish(laserOdometryROS);
-        
+
+        {
+            // write to file:
+            static std::ofstream posesFile ("./lio_sam_after_map_poses.txt");
+            if( posesFile.is_open() )
+            {
+                posesFile << (laserOdometryROS.header.stamp.toNSec()) << " " << laserOdometryROS.pose.pose.position.x << " " << laserOdometryROS.pose.pose.position.y << " " << laserOdometryROS.pose.pose.position.z
+                          << " " << laserOdometryROS.pose.pose.orientation.x << " " << laserOdometryROS.pose.pose.orientation.y << " " << laserOdometryROS.pose.pose.orientation.z << " " << laserOdometryROS.pose.pose.orientation.w <<"\n";
+            }
+        }
         // Publish TF
         static tf::TransformBroadcaster br;
         tf::Transform t_odom_to_lidar = tf::Transform(tf::createQuaternionFromRPY(transformTobeMapped[0], transformTobeMapped[1], transformTobeMapped[2]),
