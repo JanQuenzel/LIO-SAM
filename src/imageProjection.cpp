@@ -5,29 +5,29 @@ struct VelodynePointXYZIRT
 {
     PCL_ADD_POINT4D
     PCL_ADD_INTENSITY;
-    uint16_t ring;
+    std::uint16_t ring;
     float time;
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 } EIGEN_ALIGN16;
 POINT_CLOUD_REGISTER_POINT_STRUCT (VelodynePointXYZIRT,
     (float, x, x) (float, y, y) (float, z, z) (float, intensity, intensity)
-    (uint16_t, ring, ring) (float, time, time)
+    (std::uint16_t, ring, ring) (float, time, time)
 )
 
 struct OusterPointXYZIRT {
     PCL_ADD_POINT4D;
     float intensity;
-    uint32_t t;
-    uint16_t reflectivity;
-    uint8_t ring;
-    uint16_t noise;
-    uint32_t range;
+    std::uint32_t t;
+    std::uint16_t reflectivity;
+    std::uint8_t ring;
+    std::uint16_t noise;
+    std::uint32_t range;
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 } EIGEN_ALIGN16;
 POINT_CLOUD_REGISTER_POINT_STRUCT(OusterPointXYZIRT,
     (float, x, x) (float, y, y) (float, z, z) (float, intensity, intensity)
-    (uint32_t, t, t) (uint16_t, reflectivity, reflectivity)
-    (uint8_t, ring, ring) (uint16_t, noise, noise) (uint32_t, range, range)
+    (std::uint32_t, t, t) (std::uint16_t, reflectivity, reflectivity)
+    (std::uint8_t, ring, ring) (std::uint16_t, noise, noise) (std::uint32_t, range, range)
 )
 
 // Use the Velodyne point format as a common representation
@@ -214,13 +214,26 @@ public:
             pcl::moveFromROSMsg(currentCloudMsg, *tmpOusterCloudIn);
             laserCloudIn->points.resize(tmpOusterCloudIn->size());
             laserCloudIn->is_dense = tmpOusterCloudIn->is_dense;
+
+            const static Eigen::Matrix3d R = Eigen::Quaterniond(0,-0.7071,0.7071,0).normalized().toRotationMatrix();
+
             for (size_t i = 0; i < tmpOusterCloudIn->size(); i++)
             {
                 auto &src = tmpOusterCloudIn->points[i];
                 auto &dst = laserCloudIn->points[i];
-                dst.x = src.x;
-                dst.y = src.y;
-                dst.z = src.z;
+                if ( sensorFlipped )
+                {
+                    const Eigen::Vector3d p = R*Eigen::Vector3d( laserCloudIn->points[i].x, laserCloudIn->points[i].y, laserCloudIn->points[i].z );
+                    dst.x = p.x();
+                    dst.y = p.y();
+                    dst.z = p.z();
+                }
+                else
+                {
+                    dst.x = src.x;
+                    dst.y = src.y;
+                    dst.z = src.z;
+                }
                 dst.intensity = src.intensity;
                 dst.ring = src.ring;
                 dst.time = src.t * 1e-9f;
@@ -519,7 +532,7 @@ public:
     }
 
     void projectPointCloud()
-    {
+    {   
         int cloudSize = laserCloudIn->points.size();
         // range image projection
         for (int i = 0; i < cloudSize; ++i)

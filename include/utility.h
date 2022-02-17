@@ -15,7 +15,7 @@
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 
-#include <opencv/cv.h>
+#include <opencv2/opencv.hpp>
 
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -79,6 +79,7 @@ public:
     string baselinkFrame;
     string odometryFrame;
     string mapFrame;
+    bool sensorFlipped = false;
 
     // GPS Settings
     bool useImuHeadingInitialization;
@@ -105,12 +106,14 @@ public:
     float imuGyrBiasN;
     float imuGravity;
     float imuRPYWeight;
-    vector<double> extRotV;
-    vector<double> extRPYV;
-    vector<double> extTransV;
-    Eigen::Matrix3d extRot;
-    Eigen::Matrix3d extRPY;
-    Eigen::Vector3d extTrans;
+    vector<double> extRotV_bi;
+    vector<double> extRPYV_bo;
+    vector<double> extQV_li;
+    vector<double> extTransV_li;
+    Eigen::Matrix3d extRot_bi;
+    Eigen::Matrix3d extRPY_bo;
+    Eigen::Quaterniond extQ_li;
+    Eigen::Vector3d extTrans_li;
     Eigen::Quaterniond extQRPY;
 
     // LOAM
@@ -165,6 +168,8 @@ public:
         nh.param<std::string>("lio_sam/odometryFrame", odometryFrame, "odom");
         nh.param<std::string>("lio_sam/mapFrame", mapFrame, "map");
 
+        nh.param<bool>("lio_sam/sensorFlipped", sensorFlipped, false);
+
         nh.param<bool>("lio_sam/useImuHeadingInitialization", useImuHeadingInitialization, false);
         nh.param<bool>("lio_sam/useGpsElevation", useGpsElevation, false);
         nh.param<float>("lio_sam/gpsCovThreshold", gpsCovThreshold, 2.0);
@@ -206,13 +211,17 @@ public:
         nh.param<float>("lio_sam/imuGyrBiasN", imuGyrBiasN, 0.00003);
         nh.param<float>("lio_sam/imuGravity", imuGravity, 9.80511);
         nh.param<float>("lio_sam/imuRPYWeight", imuRPYWeight, 0.01);
-        nh.param<vector<double>>("lio_sam/extrinsicRot", extRotV, vector<double>());
-        nh.param<vector<double>>("lio_sam/extrinsicRPY", extRPYV, vector<double>());
-        nh.param<vector<double>>("lio_sam/extrinsicTrans", extTransV, vector<double>());
-        extRot = Eigen::Map<const Eigen::Matrix<double, -1, -1, Eigen::RowMajor>>(extRotV.data(), 3, 3);
-        extRPY = Eigen::Map<const Eigen::Matrix<double, -1, -1, Eigen::RowMajor>>(extRPYV.data(), 3, 3);
-        extTrans = Eigen::Map<const Eigen::Matrix<double, -1, -1, Eigen::RowMajor>>(extTransV.data(), 3, 1);
-        extQRPY = Eigen::Quaterniond(extRPY);
+        nh.param<vector<double>>("lio_sam/extrinsicRot_base_imu", extRotV_bi, vector<double>());
+        nh.param<vector<double>>("lio_sam/extrinsicRPY_base_ori", extRPYV_bo, vector<double>());
+        nh.param<vector<double>>("lio_sam/extrinsicQ_lidar_imu", extQV_li, vector<double>());
+        nh.param<vector<double>>("lio_sam/extrinsicTrans_lidar_imu", extTransV_li, vector<double>());
+        extRot_bi = Eigen::Map<const Eigen::Matrix<double, -1, -1, Eigen::RowMajor>>(extRotV_bi.data(), 3, 3);
+        extRPY_bo = Eigen::Map<const Eigen::Matrix<double, -1, -1, Eigen::RowMajor>>(extRPYV_bo.data(), 3, 3);
+        extQ_li = Eigen::Map<const Eigen::Quaterniond>(extQV_li.data()).normalized();
+        extTrans_li = Eigen::Map<const Eigen::Matrix<double, -1, -1, Eigen::RowMajor>>(extTransV_li.data(), 3, 1);
+        extQRPY = Eigen::Quaterniond(extRPY_bo).normalized();
+
+        ROS_INFO_STREAM("q: " << extQ_li.coeffs().transpose() << " t: " << extTrans_li.transpose() );
 
         nh.param<float>("lio_sam/edgeThreshold", edgeThreshold, 0.1);
         nh.param<float>("lio_sam/surfThreshold", surfThreshold, 0.1);
@@ -254,13 +263,13 @@ public:
         sensor_msgs::Imu imu_out = imu_in;
         // rotate acceleration
         Eigen::Vector3d acc(imu_in.linear_acceleration.x, imu_in.linear_acceleration.y, imu_in.linear_acceleration.z);
-        acc = extRot * acc;
+        acc = extRot_bi * acc;
         imu_out.linear_acceleration.x = acc.x();
         imu_out.linear_acceleration.y = acc.y();
         imu_out.linear_acceleration.z = acc.z();
         // rotate gyroscope
         Eigen::Vector3d gyr(imu_in.angular_velocity.x, imu_in.angular_velocity.y, imu_in.angular_velocity.z);
-        gyr = extRot * gyr;
+        gyr = extRot_bi * gyr;
         imu_out.angular_velocity.x = gyr.x();
         imu_out.angular_velocity.y = gyr.y();
         imu_out.angular_velocity.z = gyr.z();
