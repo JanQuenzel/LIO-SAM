@@ -1,0 +1,20 @@
+<launch>
+
+    <param name="/use_sim_time" value="true" />
+
+    <arg name="project" default="lio_sam"/>
+    
+    <!-- Parameters -->
+    <rosparam file="$(find lio_sam)/config/params_drz.yaml" command="load" />
+
+    <!--- LOAM -->
+    <include file="$(find lio_sam)/launch/include/module_loam.launch" />
+
+
+    <!--- Run Rviz-->
+    <arg name="rviz" default="false" />
+    <group if="$(arg rviz)">
+         <include file="$(find lio_sam)/launch/include/module_rviz.launch" />
+    </group>
+
+</launch>
