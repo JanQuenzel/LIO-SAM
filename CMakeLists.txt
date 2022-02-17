@@ -9,9 +9,9 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   roscpp
   rospy
-  cv_bridge
   # pcl library
   pcl_conversions
+  cv_bridge
   # msgs
   std_msgs
   sensor_msgs
