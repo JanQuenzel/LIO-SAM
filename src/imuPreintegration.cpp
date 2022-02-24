@@ -48,15 +48,17 @@ public:
             try
             {
                 tfListener.waitForTransform(lidarFrame, baselinkFrame, ros::Time(0), ros::Duration(3.0));
-                tfListener.lookupTransform(lidarFrame, baselinkFrame, ros::Time(0), lidar2Baselink);
-                ROS_INFO_STREAM("lidar2Baselink:" <<
-                                " qw:" << lidar2Baselink.getRotation().getW() <<
-                                " qx:" << lidar2Baselink.getRotation().getX() <<
-                                " qy:" << lidar2Baselink.getRotation().getY() <<
-                                " qz:" << lidar2Baselink.getRotation().getZ() <<
-                                " tx:" << lidar2Baselink.getOrigin().getX() <<
-                                " ty:" << lidar2Baselink.getOrigin().getY() <<
-                                " tz:" << lidar2Baselink.getOrigin().getZ() );
+                //tfListener.lookupTransform(lidarFrame, baselinkFrame, ros::Time(0), lidar2Baselink);
+                tfListener.lookupTransform(baselinkFrame, lidarFrame, ros::Time(0), lidar2Baselink); // this way around should be correct !
+
+                //ROS_INFO_STREAM("lidar2Baselink:" <<
+                //                " qw:" << lidar2Baselink.getRotation().getW() <<
+                //                " qx:" << lidar2Baselink.getRotation().getX() <<
+                //                " qy:" << lidar2Baselink.getRotation().getY() <<
+                //                " qz:" << lidar2Baselink.getRotation().getZ() <<
+                //                " tx:" << lidar2Baselink.getOrigin().getX() <<
+                //                " ty:" << lidar2Baselink.getOrigin().getY() <<
+                //                " tz:" << lidar2Baselink.getOrigin().getZ() );
             }
             catch (tf::TransformException & ex)
             {
@@ -247,8 +249,8 @@ public:
             lidar2Imu = gtsam::Pose3(gtsam::Rot3::identity(),lidar2Imu.translation());
         };
 
-        ROS_INFO_STREAM("imu2lidar: "<< imu2Lidar);
-        ROS_INFO_STREAM("lidar2Imu: "<< lidar2Imu);
+        //ROS_INFO_STREAM("imu2lidar: "<< imu2Lidar);
+        //ROS_INFO_STREAM("lidar2Imu: "<< lidar2Imu);
     }
 
     void resetOptimization()
@@ -311,8 +313,8 @@ public:
             }
             // initial pose
             prevPose_ = lidarPose.compose(lidar2Imu);
-            ROS_INFO_STREAM("lidar2Imu: " << lidar2Imu );
-            ROS_INFO_STREAM("lidarPose:" << lidarPose );
+            //ROS_INFO_STREAM("lidar2Imu: " << lidar2Imu );
+            //ROS_INFO_STREAM("lidarPose:" << lidarPose );
             gtsam::PriorFactor<gtsam::Pose3> priorPose(X(0), prevPose_, priorPoseNoise);
             graphFactors.add(priorPose);
             // initial velocity
@@ -335,8 +337,8 @@ public:
             imuIntegratorImu_->resetIntegrationAndSetBias(prevBias_);
             imuIntegratorOpt_->resetIntegrationAndSetBias(prevBias_);
             
-            ROS_INFO_STREAM("initialPose: " << prevPose_);
-            ROS_INFO_STREAM("initialVel: " << prevVel_);
+            //ROS_INFO_STREAM("initialPose: " << prevPose_);
+            //ROS_INFO_STREAM("initialVel: " << prevVel_);
 
             key = 1;
             systemInitialized = true;
@@ -398,7 +400,7 @@ public:
         }
         // add imu factor to graph
         const gtsam::PreintegratedImuMeasurements& preint_imu = dynamic_cast<const gtsam::PreintegratedImuMeasurements&>(*imuIntegratorOpt_);
-        ROS_INFO_STREAM("preIntImu: " << preint_imu);
+        //ROS_INFO_STREAM("preIntImu: " << preint_imu);
         gtsam::ImuFactor imu_factor(X(key - 1), V(key - 1), X(key), V(key), B(key - 1), preint_imu);
         graphFactors.add(imu_factor);
         // add imu bias between factor
@@ -406,10 +408,10 @@ public:
                          gtsam::noiseModel::Diagonal::Sigmas(sqrt(imuIntegratorOpt_->deltaTij()) * noiseModelBetweenBias)));
         // add pose factor
         gtsam::Pose3 curPose = lidarPose.compose(lidar2Imu);
-        ROS_INFO_STREAM("lidarPose: " << lidarPose);
-        ROS_INFO_STREAM("curPose: " << curPose);
-        ROS_INFO_STREAM("prevPose: " << prevPose_);
-        ROS_INFO_STREAM("prevVel: " << prevVel_);
+        //ROS_INFO_STREAM("lidarPose: " << lidarPose);
+        //ROS_INFO_STREAM("curPose: " << curPose);
+        //ROS_INFO_STREAM("prevPose: " << prevPose_);
+        //ROS_INFO_STREAM("prevVel: " << prevVel_);
         gtsam::PriorFactor<gtsam::Pose3> pose_factor(X(key), curPose, degenerate ? correctionNoise2 : correctionNoise);
         graphFactors.add(pose_factor);
         // insert predicted values
@@ -436,8 +438,8 @@ public:
             resetParams();
             return;
         }
-        ROS_INFO_STREAM("updatedPose: " << prevPose_);
-        ROS_INFO_STREAM("updatedVel: " << prevVel_);
+        //ROS_INFO_STREAM("updatedPose: " << prevPose_);
+        //ROS_INFO_STREAM("updatedVel: " << prevVel_);
 
         // 2. after optimization, re-propagate imu odometry preintegration
         prevStateOdom = prevState_;
