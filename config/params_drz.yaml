@@ -41,15 +41,15 @@ lio_sam:
 
   # Extrinsics (IMU -> lidar)
   #extrinsicTrans_lidar_imu: [0.101775, -0.006253, -0.217645] <- imu_lidar
-  #extrinsicQ_lidar_imu: [-0.7071,0.7071,0,0] # w last
+  extrinsicQ_lidar_imu: [-0.7071,0.7071,0,0] # w last
   extrinsicTrans_lidar_imu: [0.031775, 0.0832276, -0.217189] # imu_lidar
   #extrinsicQ_lidar_imu: [0,0,0,1] # w last
-  extrinsicQ_lidar_imu: [0.706674, -0.706674, 0.0247437, 0.0247437] # w last
+  #extrinsicQ_lidar_imu: [0.706674, -0.706674, 0.0247437, 0.0247437] # w last
 
   # Extrinsics (IMU -> base_link)
   extrinsicRot_base_imu: [1, 0, 0,
-                 0, -1, 0, 
-                 0, 0, -1] 
+                 0, 1, 0, 
+                 0, 0, 1] 
   extrinsicRPY_base_ori: [1, 0, 0,
                  0, 1, 0,
                  0, 0, 1]
