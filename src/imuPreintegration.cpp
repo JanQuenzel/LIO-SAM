@@ -209,10 +209,12 @@ public:
 
     int key = 1;
 
+    // T_bl: tramsform points from lidar frame to imu frame
+    //gtsam::Pose3 imu2Lidar = gtsam::Pose3(gtsam::Rot3(1, 0, 0, 0), gtsam::Point3(-extTrans.x(), -extTrans.y(), -extTrans.z()));
     gtsam::Pose3 imu2Lidar = gtsam::Pose3(gtsam::Rot3(extQ_li.w(), extQ_li.x(), extQ_li.y(), extQ_li.z()), gtsam::Point3(extTrans_li.x(), extTrans_li.y(), extTrans_li.z()));
+    // T_lb: tramsform points from imu frame to lidar frame
+    //gtsam::Pose3 lidar2Imu = gtsam::Pose3(gtsam::Rot3(1, 0, 0, 0), gtsam::Point3(extTrans.x(), extTrans.y(), extTrans.z()));
     gtsam::Pose3 lidar2Imu = imu2Lidar.inverse();
-    //gtsam::Pose3 lidar2Imu = gtsam::Pose3(gtsam::Rot3(extQ_li.w(), extQ_li.x(), extQ_li.y(), extQ_li.z()), gtsam::Point3(extTrans_li.x(), extTrans_li.y(), extTrans_li.z()));
-    //gtsam::Pose3 imu2Lidar = lidar2Imu.inverse();//gtsam::Pose3(gtsam::Rot3(1, 0, 0, 0), gtsam::Point3(extTrans.x(), extTrans.y(), extTrans.z()));
 
     IMUPreintegration()
     {
@@ -239,7 +241,7 @@ public:
         correctionNoise = gtsam::noiseModel::Diagonal::Sigmas((gtsam::Vector(6) << 0.05, 0.05, 0.05, 0.1, 0.1, 0.1).finished()); // rad,rad,rad,m, m, m
         correctionNoise2 = gtsam::noiseModel::Diagonal::Sigmas((gtsam::Vector(6) << 1, 1, 1, 1, 1, 1).finished()); // rad,rad,rad,m, m, m
         noiseModelBetweenBias = (gtsam::Vector(6) << imuAccBiasN, imuAccBiasN, imuAccBiasN, imuGyrBiasN, imuGyrBiasN, imuGyrBiasN).finished();
-        
+
         imuIntegratorImu_ = new gtsam::PreintegratedImuMeasurements(p, prior_imu_bias); // setting up the IMU integration for IMU message thread
         imuIntegratorOpt_ = new gtsam::PreintegratedImuMeasurements(p, prior_imu_bias); // setting up the IMU integration for optimization
 

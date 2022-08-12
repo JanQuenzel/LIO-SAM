@@ -221,6 +221,7 @@ public:
         extQ_li = Eigen::Map<const Eigen::Quaterniond>(extQV_li.data()).normalized();
         extTrans_li = Eigen::Map<const Eigen::Matrix<double, -1, -1, Eigen::RowMajor>>(extTransV_li.data(), 3, 1);
         extQRPY = Eigen::Quaterniond(extRPY_bo).normalized();
+        //extQRPY = Eigen::Quaterniond(extRPY).inverse(); // "original"
 
         ROS_INFO_STREAM("q: " << extQ_li.coeffs().transpose() << " t: " << extTrans_li.transpose() );
 
