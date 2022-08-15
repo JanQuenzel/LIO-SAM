@@ -1641,6 +1641,7 @@ public:
         laserOdometryROS.pose.pose.position.y = transformTobeMapped[4];
         laserOdometryROS.pose.pose.position.z = transformTobeMapped[5];
         laserOdometryROS.pose.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(transformTobeMapped[0], transformTobeMapped[1], transformTobeMapped[2]);
+        //ROS_INFO_STREAM("laserOdomIncremental rpy: " << transformTobeMapped[0] << " " << transformTobeMapped[1] << " " << transformTobeMapped[2] << " ori: "<< laserOdometryROS.pose.pose.orientation);
         pubLaserOdometryGlobal.publish(laserOdometryROS);
 
         {
@@ -1702,6 +1703,7 @@ public:
             laserOdomIncremental.pose.pose.position.y = y;
             laserOdomIncremental.pose.pose.position.z = z;
             laserOdomIncremental.pose.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(roll, pitch, yaw);
+            //ROS_INFO_STREAM("laserOdomIncremental rpy: " << roll << " " << pitch << " " << yaw << " ori: "<< laserOdomIncremental.pose.pose.orientation);
             if (isDegenerate)
                 laserOdomIncremental.pose.covariance[0] = 1;
             else

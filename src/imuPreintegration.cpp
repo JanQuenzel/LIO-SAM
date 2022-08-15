@@ -128,6 +128,7 @@ public:
         laserOdometry.pose.pose.position.y = y;
         laserOdometry.pose.pose.position.z = z;
         laserOdometry.pose.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(roll, pitch, yaw);
+        //ROS_INFO_STREAM("laserOdometry IMUPre rpy: " << roll << " " << pitch << " " << yaw << " ori: "<< laserOdometry.pose.pose.orientation);
         pubImuOdometry.publish(laserOdometry);
 
         // publish tf
@@ -245,7 +246,7 @@ public:
         imuIntegratorImu_ = new gtsam::PreintegratedImuMeasurements(p, prior_imu_bias); // setting up the IMU integration for IMU message thread
         imuIntegratorOpt_ = new gtsam::PreintegratedImuMeasurements(p, prior_imu_bias); // setting up the IMU integration for optimization
 
-        if ( sensorFlipped )
+        if ( sensorFlipped ) // perform rotation on imageProjection already!
         {
             imu2Lidar = gtsam::Pose3(gtsam::Rot3::identity(),imu2Lidar.translation());
             lidar2Imu = gtsam::Pose3(gtsam::Rot3::identity(),lidar2Imu.translation());

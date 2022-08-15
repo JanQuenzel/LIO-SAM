@@ -39,19 +39,30 @@ lio_sam:
   imuRPYWeight: 0.01
 
   # Extrinsics: T_lb (lidar -> imu)
-  extrinsicTrans: [0.0, 0.0, 0.0]
-  extrinsicRot: [-1, 0, 0,
-                  0, 1, 0,
-                  0, 0, -1]
-  extrinsicRPY: [0, -1, 0,
-                 1, 0, 0,
-                 0, 0, 1]
-  # extrinsicRot: [1, 0, 0,
-  #                 0, 1, 0,
-  #                 0, 0, 1]
-  # extrinsicRPY: [1, 0, 0,
-  #                 0, 1, 0,
-  #                 0, 0, 1]
+  extrinsicTrans_lidar_imu: [0.0, 0, 0] # imu_lidar
+  extrinsicQ_lidar_imu: [0, 0, 0, 1] # w last
+
+  # Extrinsics (IMU -> base_link)
+  # extrinsicRot_base_imu: [1, 0, 0,
+  #                         0, 1, 0,
+  #                         0, 0, 1]
+  # extrinsicRPY_base_ori: [1, 0, 0,
+  #                         0, 1, 0,
+  #                         0, 0, 1]
+
+  #extrinsicTrans_lidar_imu: [0.0, 0.0, 0.0]
+  extrinsicRot_base_imu: [-1, 0, 0,
+                           0, 1, 0,
+                           0, 0,-1]
+  extrinsicRPY_base_ori: [0,-1, 0,
+                          1, 0, 0,
+                          0, 0, 1]
+  # extrinsicRot_base_imu: [1, 0, 0,
+  #                         0, 1, 0,
+  #                         0, 0, 1]
+  # extrinsicRPY_base_ori: [1, 0, 0,
+  #                         0, 1, 0,
+  #                         0, 0, 1]
 
   # LOAM feature threshold
   edgeThreshold: 1.0

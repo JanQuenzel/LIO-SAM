@@ -215,7 +215,7 @@ public:
             laserCloudIn->points.resize(tmpOusterCloudIn->size());
             laserCloudIn->is_dense = tmpOusterCloudIn->is_dense;
 
-            const static Eigen::Matrix3d R = Eigen::Quaterniond(0,-0.7071,0.7071,0).normalized().toRotationMatrix();
+            const static Eigen::Quaterniond q = Eigen::Quaterniond(0,-0.7071,0.7071,0).normalized();
 
             for (size_t i = 0; i < tmpOusterCloudIn->size(); i++)
             {
@@ -223,7 +223,7 @@ public:
                 auto &dst = laserCloudIn->points[i];
                 if ( sensorFlipped )
                 {
-                    const Eigen::Vector3d p = R*Eigen::Vector3d( laserCloudIn->points[i].x, laserCloudIn->points[i].y, laserCloudIn->points[i].z );
+                    const Eigen::Vector3d p = q*Eigen::Vector3d( src.x, src.y, src.z );
                     dst.x = p.x();
                     dst.y = p.y();
                     dst.z = p.z();
