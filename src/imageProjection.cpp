@@ -217,6 +217,7 @@ public:
 
             const static Eigen::Quaterniond q = Eigen::Quaterniond(0,-0.7071,0.7071,0).normalized();
 
+            float max_time = 0;
             for (size_t i = 0; i < tmpOusterCloudIn->size(); i++)
             {
                 auto &src = tmpOusterCloudIn->points[i];
@@ -237,7 +238,9 @@ public:
                 dst.intensity = src.intensity;
                 dst.ring = src.ring;
                 dst.time = src.t * 1e-9f;
+                if ( dst.time > max_time ) max_time = dst.time;
             }
+            laserCloudIn->points.back().time = max_time; // ensure last time is set correctly
         }
         else
         {
