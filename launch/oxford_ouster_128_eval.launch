@@ -3,12 +3,9 @@
     <param name="/use_sim_time" value="true" />
 
     <arg name="project" default="lio_sam"/>
-
-    <node pkg="tf" type="static_transform_publisher" name="baselink_BodyFLU_broadcaster" args="0 0 0 0 0 0 1 base_link body_FLU 100" />
-    <node pkg="tf" type="static_transform_publisher" name="baselink_os_broadcaster" args="0.032 0.083 -0.217 0.7071 -0.7071 0 0 base_link os_lidar 100" />
     
     <!-- Parameters -->
-    <rosparam file="$(find lio_sam)/config/params_drz.yaml" command="load" />
+    <rosparam file="$(find lio_sam)/config/params_oxford.yaml" command="load" />
 
     <!--- LOAM -->
     <include file="$(find lio_sam)/launch/include/module_loam.launch" />
